@@ -4,9 +4,21 @@ const Category = require("../../db").Category;
 const Review = require("../../db").Review;
 const { Op } = require("sequelize");
 const router = express.Router();
+const multer = require("multer")
 
+const { CloudinaryStorage } = require("multer-storage-cloudinary")
+const cloudinary = require("../../cloudinary")
+
+const cloudStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+      folder: "amazon"
+  }
+})
+const cloudMulter =  multer({ storage: cloudStorage})
 router
   .route("/")
+  
   .get(async (req, res, next) => {
     try {
       const data = await Product.findAll({
@@ -90,9 +102,30 @@ router
         console.log(e);
         next(e);
       }
-     
+    })
+   router
+      .route("/:id/image/upload")
+      .post(
+      cloudMulter.single("image"), async (req, res, next) =>{
+        
+        try{
+            console.log("req file",req.file.path)
+            const updatedData = await Product.update({image:req.file.path}, {
+                returning: true,
+                plain: true,
+                where: {
+                  id: req.params.id,
+                },
+              });
+              res.send(updatedData[1]);
+            }
+        catch(ex){
+            console.log(ex)
+            next(ex)
+        }
+      })
   
-  })
+ 
 
 
 module.exports = router;
