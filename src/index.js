@@ -3,8 +3,9 @@ const express = require("express");
 require("dotenv").config();
   const productsRouter = require("./services/products");
 const reviewsRouter = require("./services/reviews");
-// const usersRouter = require("./services/users");
-// const categoryRouter = require("./services/category");
+const usersRouter = require("./services/users");
+ const categoryRouter = require("./services/category");
+ const cartRouter = require("./services/cart");
 
 const db = require("./db");
 const cors = require("cors");
@@ -15,8 +16,9 @@ server.use(cors());
  server.use(express.json());
  server.use("/products", productsRouter);
 server.use("/reviews", reviewsRouter);
-// server.use("/users", usersRouter);
-// server.use("/category", categoryRouter);
+server.use("/users", usersRouter);
+server.use("/category", categoryRouter);
+server.use("/cart", cartRouter);
 
 db.sequelize.sync({ force:false}).then((result) => {
   server.listen(process.env.PORT || 5000, () => {
